@@ -10,7 +10,7 @@
       path: /usr/sbin/zabbix_agentd
     register: zabbix_agent_installed
 
-  - namee: Install Zabbix agent
+  - name: Install Zabbix agent
     include_tasks: install.yaml
     when: not zabbix_agent_installed.stat.exists
     register: install_zabbix_agent

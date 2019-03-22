@@ -1,3 +1,4 @@
+---
   - name: Download Zabbix Debian 9 release deb file
     get_url: 
       url: https://repo.zabbix.com/zabbix/4.0/debian/pool/main/z/zabbix-release/zabbix-release_4.0-2+​stretch_all.deb

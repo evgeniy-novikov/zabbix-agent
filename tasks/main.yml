@@ -1,24 +1,30 @@
 ---
-  - tasks:
+#- name: Main Zabbix agent install
+#  hosts: local # delete
+#  become: yes #delete
 
+#  tasks: #delete
   # Add a fast check to speed reconfiguration
-  - stat: path=/usr/sbin/zabbix_agentd
+  - name: Check installed zabbix agent
+    stat: 
+      path: /usr/sbin/zabbix_agentd
     register: zabbix_agent_installed
 
-  - include: install.yaml
+  - include_tasks: install.yaml
     when: not zabbix_agent_installed.stat.exists
     register: install_zabbix_agent
 
-  - include: configure.yaml
-    when: install_zabbix_agent|changed
+  - include_tasks: configure.yaml
+    when: install_zabbix_agent is succeeded
     register: configure_zabbix
+#    ignore_errors: yes #delete
 
-  - include: update.yaml
+  - include_tasks: update.yaml
     when: zabbix_agent_installed.stat.exists
 
   - name: Create log directory
     file: path=/var/log/zabbix state=directory owner=zabbix group=zabbix mode=0775
-    when: configure_zabbix|changed
+    when: configure_zabbix is succeeded
 
   - name: Start Zabbix agent service
     service: name=zabbix-agent state=started enabled=yes
@@ -27,7 +33,7 @@
 
   - name: Start Zabbix agent in Centos 7
     shell: pgrep zabbix_agentd || /usr/sbin/zabbix_agentd
-    when: zabbix_service|failed
+    when: zabbix_service is failed
 
   - name: Check Zabbix Proxy
     stat: path=/usr/sbin/zabbix_proxy
@@ -41,4 +47,4 @@
 
   - name: Start Zabbix proxy in Centos
     shell: pgrep zabbix_proxy || /usr/sbin/zabbix_proxy
-    when: zabbix_proxy_service|failed and zabbix_proxy_installed.stat.exist
+    when: zabbix_proxy_service is failed and zabbix_proxy_installed.stat.exist

@@ -1,0 +1,44 @@
+---
+  - tasks:
+
+  # Add a fast check to speed reconfiguration
+  - stat: path=/usr/sbin/zabbix_agentd
+    register: zabbix_agent_installed
+
+  - include: install.yaml
+    when: not zabbix_agent_installed.stat.exists
+    register: install_zabbix_agent
+
+  - include: configure.yaml
+    when: install_zabbix_agent|changed
+    register: configure_zabbix
+
+  - include: update.yaml
+    when: zabbix_agent_installed.stat.exists
+
+  - name: Create log directory
+    file: path=/var/log/zabbix state=directory owner=zabbix group=zabbix mode=0775
+    when: configure_zabbix|changed
+
+  - name: Start Zabbix agent service
+    service: name=zabbix-agent state=started enabled=yes
+    ignore_errors: yes
+    register: zabbix_service
+
+  - name: Start Zabbix agent in Centos 7
+    shell: pgrep zabbix_agentd || /usr/sbin/zabbix_agentd
+    when: zabbix_service|failed
+
+  - name: Check Zabbix Proxy
+    stat: path=/usr/sbin/zabbix_proxy
+    register: zabbix_proxy_installed    
+
+  - name: Start Zabbix proxy
+    service: name=zabbix-proxy state=started enabled=yes
+    ignore_errors: yes
+    register: zabbix_proxy_service
+    when: zabbix_proxy_installed.stat.exist
+
+  - name: Start Zabbix proxy in Centos
+    shell: pgrep zabbix_proxy || /usr/sbin/zabbix_proxy
+    when: zabbix_proxy_service|failed and zabbix_proxy_installed.stat.exist

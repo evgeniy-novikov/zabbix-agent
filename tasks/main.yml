@@ -48,7 +48,10 @@
     register: zabbix_proxy_installed    
 
   - name: Start Zabbix proxy
-    service: name=zabbix-proxy state=started enabled=yes
+    service: 
+      name: zabbix-proxy
+      state: started
+      enabled: yes
     ignore_errors: yes
     register: zabbix_proxy_service
     when: zabbix_proxy_installed.stat.exist

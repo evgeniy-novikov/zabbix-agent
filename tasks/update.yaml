@@ -5,65 +5,26 @@
       state: absent
     when: ansible_facts['os_family'] == "Debian"
 
-  - name: Download Zabbix Debian 9 release deb file
-    get_url: 
-      url: https://repo.zabbix.com/zabbix/4.0/debian/pool/main/z/zabbix-release/zabbix-release_4.0-2+stretch_all.deb
-      dest: /tmp/zabbix-release_4.0-2.deb
-    when: 
-      - ansible_facts['os_family'] == "Debian"
-      - ansible_facts['distribution'] == "Debian"
-      - ansible_facts['distribution_major_version']|int == 9
-
-  - name: Download Zabbix Debian 8 release deb file
-    get_url: 
-      url: https://repo.zabbix.com/zabbix/4.0/debian/pool/main/z/zabbix-release/zabbix-release_4.0-2+jessie_all.deb
-      dest: /tmp/zabbix-release_4.0-2.deb
-    when: 
-      - ansible_facts['os_family'] == "Debian"
-      - ansible_facts['distribution'] == "Debian"
-      - ansible_facts['distribution_major_version']|int == 8
-    
-  - name: Download Zabbix Debian 7 release deb file
-    get_url: 
-      url: https://repo.zabbix.com/zabbix/4.0/debian/pool/main/z/zabbix-release/zabbix-release_4.0-2+wheezy_all.deb
-      dest: /tmp/zabbix-release_4.0-2.deb
-    when:
-      - ansible_facts['os_family'] == "Debian"
-      - ansible_facts['distribution'] == "Debian"
-      - ansible_facts['distribution_major_version']|int == 7
-    
-  - name: Download Zabbix Ubuntu 16 release deb file
-    get_url: 
-      url: http://repo.zabbix.com/zabbix/4.0/ubuntu/pool/main/z/zabbix-release/zabbix-release_4.0-2+xenial_all.deb
-      dest: /tmp/zabbix-release_4.0-2.deb
-    when:
-      - ansible_facts['os_family'] == "Debian"
-      - ansible_facts['distribution'] == "Ubuntu"
-      - ansible_facts['distribution_major_version']|int == 16
-
-  - name: Download Zabbix Ubuntu 14 release deb file
-    get_url: 
-      url: http://repo.zabbix.com/zabbix/4.0/ubuntu/pool/main/z/zabbix-release/zabbix-release_4.0-2+trusty_all.deb
-      dest: /tmp/zabbix-release_4.0-2.deb
-    when:
-      - ansible_facts['os_family'] == "Debian"
-      - ansible_facts['distribution'] == "Ubuntu"
-      - ansible_facts['distribution_major_version']|int == 14
-
-  - name: Download Zabbix Ubuntu 18 release deb file
-    get_url: 
-      url: http://repo.zabbix.com/zabbix/4.0/ubuntu/pool/main/z/zabbix-release/zabbix-release_4.0-2+bionic_all.deb
-      dest: /tmp/zabbix-release_4.0-2.deb
-    when:
-      - ansible_facts['os_family'] == "Debian"
-      - ansible_facts['distribution'] == "Ubuntu"
-      - ansible_facts['distribution_major_version']|int == 18
+  - name: delete old zabbix release
+    apt:
+      name: zabbix-release
+      state: absent
+    when: ansible_facts['os_family'] == "Debian"
 
   - name: apt update Zabbix release in Ubuntu/Debian
     apt: 
-      deb: /tmp/zabbix-release_4.0-2.deb
-    when: 
-      - ansible_facts['os_family'] == "Debian"
+      deb: http://repo.zabbix.com/zabbix/4.0/ubuntu/pool/main/z/zabbix-release/zabbix-release_4.0-2+{{ ansible_facts['distribution_release'] }}_all.deb
+    when: ansible_facts['os_family'] == "Debian"
+
+  - name: Add zabbix repo
+    apt_repository:
+      repo: "{{ item }} http://repo.zabbix.com/zabbix/4.0/{{ ansible_facts['distribution']|lower}} {{ ansible_facts['distribution_release'] }} main"
+      state: present
+      filename: zabbix
+    loop:
+      - deb
+      - deb-src
+    when: ansible_facts['os_family'] == "Debian"
 
   - name: apt-get update
     apt: 
@@ -96,21 +57,20 @@
     apt: 
       name: zabbix-agent
       state: latest
+      only_upgrade: yes
     when: ansible_facts['os_family'] == "Debian"
 
   - name: yum upgrade Zabbix agent
     yum: 
       name: zabbix-agent
       state: latest
+      only_upgrade: yes
     when: ansible_facts['os_family'] == "RedHat"
 
   - name: Check Zabbix Proxy
     stat: 
       path: /usr/sbin/zabbix_proxy
     register: zabbix_proxy_installed
-
-#  - debug:
-#        msg: "{{ zabbix_proxy_installed }}"
   
   - name: Stop service Zabbix Proxy
     service:
@@ -119,33 +79,22 @@
     when: zabbix_proxy_installed.stat.exists == "true"
     register: zabbix_proxy_stopped
 
-#  - debug:
-#       msg: "{{ zabbix_proxy_stopped }}"
-
   - name: Delete zabbix db
     file:
       path: /var/lib/sqlite/zabbix.db
       state: absent
     when: zabbix_proxy_stopped is succeeded
-    register: delete_zabbixbd
-
-#  - debug:
-#       msg: "{{ delete_zabbixbd }}"
 
   - name: apt upgrade Zabbix Proxy
     apt:
       name: zabbix-proxy-sqlite3
       state: latest
-    when:
-      - delete_zabbixbd.changed == "true"
-      - ansible_facts['os_family'] == "Debian"
-      - zabbix_proxy_installed.stat.exists == "true"
+      only_upgrade: yes
+    when: ansible_facts['os_family'] == "Debian"
 
   - name: yun upgrade Zabbix Proxy
     yum:
       name: zabbix-proxy-sqlite3
       state: latest
-    when:
-      - delete_zabbixbd.changed == "true"
-      - ansible_facts['os_family'] == "RedHat"
-      - zabbix_proxy_installed.stat.exists == "true"
+      only_upgrade: yes
+    when: ansible_facts['os_family'] == "RedHat"

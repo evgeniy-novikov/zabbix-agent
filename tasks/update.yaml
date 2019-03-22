@@ -110,37 +110,53 @@
       name: zabbix-agent
       state: latest
     when: ansible_facts['os_family'] == "RedHat"
-  
+
   - name: Check Zabbix Proxy
-    stat: path=/usr/sbin/zabbix_proxy
+    stat: 
+      path: /usr/sbin/zabbix_proxy
     register: zabbix_proxy_installed
+
+#  - debug:
+#        msg: "{{ zabbix_proxy_installed }}"
   
-  - name: Stop service httpd, if started
+  - name: Stop service Zabbix Proxy
     service:
       name: zabbix-proxy
       state: stopped
-    when: zabbix_proxy_installed.stat.exists
+    when: zabbix_proxy_installed.stat.exists == "true"
     register: zabbix_proxy_stopped
 
-  - name: Delete zabbix.db
+#  - debug:
+#       msg: "{{ zabbix_proxy_stopped }}"
+
+  - name: Delete zabbix db
     file:
       path: /var/lib/sqlite/zabbix.db
       state: absent
-    when: zabbix_proxy_stopped is changed
+    when:
+      - zabbix_proxy_stopped is succeeded
+      - zabbix_proxy_installed.stat.exists == "true"
     register: delete_zabbixbd
+
+#  - debug:
+#       msg: "{{ delete_zabbixbd }}"
 
   - name: apt upgrade Zabbix Proxy
     apt:
-      name: zabbix-proxy
+      name: zabbix-proxy-sqlite3
       state: latest
-    when: 
-      - delete_zabbixbd is changed
+    when:
+      - delete_zabbixbd is succeeded
+      - delete_zabbixbd.changed == "true"
       - ansible_facts['os_family'] == "Debian"
+      - zabbix_proxy_installed.stat.exists == "true"
 
   - name: yun upgrade Zabbix Proxy
     yum:
-      name: zabbix-proxy
+      name: zabbix-proxy-sqlite3
       state: latest
     when:
-      - delete_zabbixbd is changed
+      - delete_zabbixbd is succeeded
+      - delete_zabbixbd.changed == "true"
       - ansible_facts['os_family'] == "RedHat"
+      - zabbix_proxy_installed.stat.exists == "true"

@@ -1,4 +1,10 @@
 ---
+  - name: delete old sources in debian
+    file:
+      path: /etc/apt/sources.list.d/zabbix.list
+      state: absent
+    when: ansible_facts['os_family'] == "Debian"
+
   - name: Download Zabbix Debian 9 release deb file
     get_url: 
       url: https://repo.zabbix.com/zabbix/4.0/debian/pool/main/z/zabbix-release/zabbix-release_4.0-2+stretch_all.deb
@@ -58,25 +64,12 @@
       deb: /tmp/zabbix-release_4.0-2.deb
     when: 
       - ansible_facts['os_family'] == "Debian"
-      - ansible_facts['distribution'] == "Debian"
-      - ansible_facts['distribution_major_version']|int != 9
-    register: result_zabbix_release
-
-  - name: apt install Zabbix release in Debian 9
-    apt: 
-      deb: /tmp/zabbix-release_4.0-2.deb
-    when:
-      - ansible_facts['os_family'] == "Debian"
-      - ansible_facts['distribution'] == "Debian"
-      - ansible_facts['distribution_major_version']|int == 9
-    register: result_zabbix_release
 
   - name: apt-get update
     apt: 
       update_cache: yes
     when: 
       - ansible_facts['os_family'] == "Debian"
-      - result_zabbix_release is changed
 
   - name: yum install Zabbix release in RHEL or CentOS
     yum: 

@@ -58,25 +58,12 @@
       deb: /tmp/zabbix-release_4.0-2.deb
     when: 
       - ansible_facts['os_family'] == "Debian"
-      - ansible_facts['distribution'] == "Debian"
-      - ansible_facts['distribution_major_version']|int != 9
-    register: result_zabbix_release
-
-  - name: apt install Zabbix release in Debian 9
-    apt: 
-      deb: /tmp/zabbix-release_4.0-2.deb
-    when:
-      - ansible_facts['os_family'] == "Debian"
-      - ansible_facts['distribution'] == "Debian"
-      - ansible_facts['distribution_major_version']|int == 9
-    register: result_zabbix_release
 
   - name: apt-get update
     apt: 
       update_cache: yes
     when: 
       - ansible_facts['os_family'] == "Debian"
-      - result_zabbix_release is changed
 
   - name: yum install Zabbix release in RHEL or CentOS
     yum: 
@@ -100,9 +87,11 @@
       - ansible_facts['distribution_major_version']|int == 2
     
   - name: apt install Zabbix agent
-    apt: name=zabbix-agent
+    apt: 
+      name: zabbix-agent
     when: ansible_os_family == "Debian"
 
   - name: yum install Zabbix agent
-    yum: name=zabbix-agent
+    yum: 
+      name: zabbix-agent
     when: ansible_os_family == "RedHat"

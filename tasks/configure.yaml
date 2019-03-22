@@ -1,5 +1,6 @@
 ---
-  - include_vars: ./defaults/main.yml
+  - name: Configure zabbix-agent
+    include_vars: ./defaults/main.yml
 
   - lineinfile: dest=/etc/zabbix/zabbix_agentd.conf regexp="{{ item.var }}=" line="{{ item.var }}={{ item.value }}"
     with_items:

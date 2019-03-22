@@ -78,7 +78,7 @@
       update_cache: yes
     when: 
       - ansible_facts['os_family'] == "Debian"
-      - result_zabbix_release|changed
+      - result_zabbix_release is changed
 
   - name: yum install Zabbix release in RHEL or CentOS
     yum: 
@@ -128,7 +128,7 @@
     file:
       path: /var/lib/sqlite/zabbix.db
       state: absent
-    when: zabbix_proxy_stopped|changed
+    when: zabbix_proxy_stopped is changed
     register: delete_zabbixbd
 
   - name: apt upgrade Zabbix Proxy
@@ -136,7 +136,7 @@
       name: zabbix-proxy
       state: latest
     when: 
-      - delete_zabbixbd|changed
+      - delete_zabbixbd is changed
       - ansible_facts['os_family'] == "Debian"
 
   - name: yun upgrade Zabbix Proxy
@@ -144,5 +144,5 @@
       name: zabbix-proxy
       state: latest
     when:
-      - delete_zabbixbd|changed
+      - delete_zabbixbd is changed
       - ansible_facts['os_family'] == "RedHat"

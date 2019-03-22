@@ -75,7 +75,7 @@
       update_cache: yes
     when: 
       - ansible_facts['os_family'] == "Debian"
-      - result_zabbix_release|changed
+      - result_zabbix_release is changed
 
   - name: yum install Zabbix release in RHEL or CentOS
     yum: 

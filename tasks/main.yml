@@ -10,21 +10,29 @@
       path: /usr/sbin/zabbix_agentd
     register: zabbix_agent_installed
 
-  - include_tasks: install.yaml
+  - namee: Install Zabbix agent
+    include_tasks: install.yaml
     when: not zabbix_agent_installed.stat.exists
     register: install_zabbix_agent
 
-  - include_tasks: configure.yaml
-    when: install_zabbix_agent is succeeded
-    register: configure_zabbix
-#    ignore_errors: yes #delete
+#  - debug: 
+#       msg: "{{ install_zabbix_agent.skipped }}"
 
-  - include_tasks: update.yaml
+  - name: Configure
+    include_tasks: configure.yaml
+    when: install_zabbix_agent.skipped != true
+    register: configure_zabbix
+
+#  - debug:
+#       msg: "{{ configure_zabbix }}"
+
+  - name: Update Zabbix agent
+    include_tasks: update.yaml
     when: zabbix_agent_installed.stat.exists
 
   - name: Create log directory
     file: path=/var/log/zabbix state=directory owner=zabbix group=zabbix mode=0775
-    when: configure_zabbix is succeeded
+    when: configure_zabbix.skipped != true
 
   - name: Start Zabbix agent service
     service: name=zabbix-agent state=started enabled=yes
@@ -48,3 +56,4 @@
   - name: Start Zabbix proxy in Centos
     shell: pgrep zabbix_proxy || /usr/sbin/zabbix_proxy
     when: zabbix_proxy_service is failed and zabbix_proxy_installed.stat.exist
+    ignore_errors: yes

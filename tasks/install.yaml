@@ -1,7 +1,7 @@
 ---
   - name: Download Zabbix Debian 9 release deb file
     get_url: 
-      url: https://repo.zabbix.com/zabbix/4.0/debian/pool/main/z/zabbix-release/zabbix-release_4.0-2+​stretch_all.deb
+      url: https://repo.zabbix.com/zabbix/4.0/debian/pool/main/z/zabbix-release/zabbix-release_4.0-2+stretch_all.deb
       dest: /tmp/zabbix-release_4.0-2.deb
     when: 
       - ansible_facts['os_family'] == "Debian"
@@ -10,7 +10,7 @@
 
   - name: Download Zabbix Debian 8 release deb file
     get_url: 
-      url: https://repo.zabbix.com/zabbix/4.0/debian/pool/main/z/zabbix-release/zabbix-release_4.0-2+​​jessie_all.deb
+      url: https://repo.zabbix.com/zabbix/4.0/debian/pool/main/z/zabbix-release/zabbix-release_4.0-2+jessie_all.deb
       dest: /tmp/zabbix-release_4.0-2.deb
     when: 
       - ansible_facts['os_family'] == "Debian"
@@ -19,7 +19,7 @@
     
   - name: Download Zabbix Debian 7 release deb file
     get_url: 
-      url: https://repo.zabbix.com/zabbix/4.0/debian/pool/main/z/zabbix-release/zabbix-release_4.0-2+​wheezy_all.deb
+      url: https://repo.zabbix.com/zabbix/4.0/debian/pool/main/z/zabbix-release/zabbix-release_4.0-2+wheezy_all.deb
       dest: /tmp/zabbix-release_4.0-2.deb
     when:
       - ansible_facts['os_family'] == "Debian"

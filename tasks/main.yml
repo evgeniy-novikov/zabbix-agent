@@ -55,11 +55,11 @@
       enabled: yes
     ignore_errors: yes
     register: zabbix_proxy_service
-    when: zabbix_proxy_installed.stat.exist == "true"
+    when: zabbix_proxy_installed.stat.exists == "true"
 
   - name: Start Zabbix proxy in Centos
     shell: pgrep zabbix_proxy || /usr/sbin/zabbix_proxy
     when:
       - zabbix_proxy_service is failed
-      - zabbix_proxy_installed.stat.exist == "true"
+      - zabbix_proxy_installed.stat.exists == "true"
     ignore_errors: yes

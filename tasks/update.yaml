@@ -133,9 +133,7 @@
     file:
       path: /var/lib/sqlite/zabbix.db
       state: absent
-    when:
-      - zabbix_proxy_stopped is succeeded
-      - zabbix_proxy_installed.stat.exists == "true"
+    when: zabbix_proxy_stopped is succeeded
     register: delete_zabbixbd
 
 #  - debug:
@@ -146,7 +144,6 @@
       name: zabbix-proxy-sqlite3
       state: latest
     when:
-      - delete_zabbixbd is succeeded
       - delete_zabbixbd.changed == "true"
       - ansible_facts['os_family'] == "Debian"
       - zabbix_proxy_installed.stat.exists == "true"
@@ -156,7 +153,6 @@
       name: zabbix-proxy-sqlite3
       state: latest
     when:
-      - delete_zabbixbd is succeeded
       - delete_zabbixbd.changed == "true"
       - ansible_facts['os_family'] == "RedHat"
       - zabbix_proxy_installed.stat.exists == "true"

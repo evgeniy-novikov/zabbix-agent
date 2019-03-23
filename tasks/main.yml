@@ -6,7 +6,7 @@
 
   - name: Install Zabbix agent
     include_tasks: install.yaml
-    when: zabbix_agent_installed.stat.exists == "false"
+    when: zabbix_agent_installed.stat.exists == false
     register: install_zabbix_agent
 
   - name: Configure
@@ -16,7 +16,10 @@
 
   - name: Update Zabbix agent and Proxy
     include_tasks: update.yaml
-    when: zabbix_agent_installed.stat.exists == "true"
+    when:
+      - zabbix_agent_installed.stat.exists
+      - configure_zabbix.skipped
+      - install_zabbix_agent.skipped
 
   - name: Create log directory
     file: path=/var/log/zabbix state=directory owner=zabbix group=zabbix mode=0775
@@ -39,4 +42,4 @@
       state: started
       enabled: yes
     register: zabbix_proxy_service
-    when: zabbix_proxy_installed.stat.exists == "true"
+    when: zabbix_proxy_installed.stat.exists == true

@@ -76,7 +76,7 @@
     service:
       name: zabbix-proxy
       state: stopped
-    when: zabbix_proxy_installed.stat.exists == "true"
+    when: zabbix_proxy_installed.stat.exists
     register: zabbix_proxy_stopped
 
   - name: Delete zabbix db

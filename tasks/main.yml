@@ -42,4 +42,4 @@
       state: started
       enabled: yes
     register: zabbix_proxy_service
-    when: zabbix_proxy_installed.stat.exists == true
+    when: zabbix_proxy_installed.stat.exists

@@ -38,14 +38,15 @@ Example Playbook
 ```
 ---
 - hosts: zabbix-clients
+  become: yes
   roles:
-       - zabbix-agent
+     - zabbix-agent
 ```
 
 How to run
 ----------
 If you run:
-ansible-playbook zabbix-agent.yml --limit zabbix-clients 
+ansible-playbook zabbix-agent.yml
 
 Ansible will check if the Zabbix agent is installed, 
 and if is not installed, install, configure and add to autoload.
@@ -57,9 +58,6 @@ ansible-playbook zabbix-agent.yml -t install
 
 For only upgrade Zabbix Agents and Zabbix Proxy run:
 ansible-playbook zabbix-agent.yml -t upgrade
-
-For only start Zabbix Agents run:
-ansible-playbook zabbix-agent.yml -t start-agent
 
 For only start Zabbix Proxy run:
 ansible-playbook zabbix-agent.yml -t start-proxy

@@ -6,7 +6,6 @@
     tags:
       - install
       - upgrade
-      - start-agent
 
   - name: Install Zabbix agent
     include_tasks: install.yaml
@@ -32,8 +31,13 @@
       - upgrade
 
   - name: Create log directory
-    file: path=/var/log/zabbix state=directory owner=zabbix group=zabbix mode=0775
-    when: configure_zabbix.skipped != true
+    file:
+      path: /var/log/zabbix
+      state: directory
+      owner: zabbix
+      group: zabbix
+      mode: 0775
+    when: configure_zabbix
     tags:
       - install
 
@@ -42,10 +46,10 @@
       name: zabbix-agent
       state: started
       enabled: yes
+    when: zabbix_agent_installed.stat.exists
     tags:
       - install
       - upgrade
-      - start-agent
 
   - name: Check Zabbix Proxy
     stat: 

@@ -1,5 +1,5 @@
 ---
-- hosts: zabbix-clients
+- hosts: bvn-node
   become: yes
   roles:
      - zabbix-agent

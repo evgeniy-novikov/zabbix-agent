@@ -1,70 +1,58 @@
 ---
-  - name: apt update Zabbix release in Ubuntu/Debian
-    apt: 
-      deb: http://repo.zabbix.com/zabbix/4.0/{{ ansible_facts['distribution']|lower}}/pool/main/z/zabbix-release/zabbix-release_4.0-2+{{ ansible_facts['distribution_release'] }}_all.deb
-    when: ansible_facts['os_family'] == "Debian"
-    tags:
-      - install
+  - block:
 
-  - name: Add zabbix repo
-    apt_repository:
-      repo: "{{ item }} http://repo.zabbix.com/zabbix/4.0/{{ ansible_facts['distribution']|lower}} {{ ansible_facts['distribution_release'] }} main"
-      state: present
-      filename: zabbix
-    loop:
-      - deb
-      - deb-src
-    when: ansible_facts['os_family'] == "Debian"
-    tags:
-      - install
+    - name: apt update Zabbix release in Ubuntu/Debian
+      apt: 
+        deb: http://repo.zabbix.com/zabbix/4.0/{{ ansible_facts['distribution']|lower}}/pool/main/z/zabbix-release/zabbix-release_4.0-2+{{ ansible_facts['distribution_release'] }}_all.deb
+      when: ansible_facts['os_family'] == "Debian"
 
-  - name: apt-get update
-    apt: 
-      update_cache: yes
-    when: 
-      - ansible_facts['os_family'] == "Debian"
-    tags:
-      - install
+    - name: Add zabbix repo
+      apt_repository:
+        repo: "{{ item }} http://repo.zabbix.com/zabbix/4.0/{{ ansible_facts['distribution']|lower}} {{ ansible_facts['distribution_release'] }} main"
+        state: present
+        filename: zabbix
+      loop:
+        - deb
+        - deb-src
+      when: ansible_facts['os_family'] == "Debian"
 
-  - name: yum install Zabbix release in RHEL or CentOS
-    yum: 
-      name: http://repo.zabbix.com/zabbix/4.0/rhel/{{ ansible_facts['distribution_major_version'] }}/x86_64/zabbix-release-4.0-1.el{{ ansible_facts['distribution_major_version'] }}.noarch.rpm
-    when:
-      - ansible_facts['os_family'] == "RedHat"
-      - ansible_facts['distribution'] != "Amazon"
-    tags:
-      - install
+    - name: apt-get update
+      apt: 
+        update_cache: yes
+      when: 
+        - ansible_facts['os_family'] == "Debian"
 
-  - name: yum install zabbix release in Amazon Linux
-    yum:
-      name: http://repo.zabbix.com/zabbix/4.0/rhel/6/x86_64/zabbix-release-4.0-1.el6.noarch.rpm
-    when: 
-      - ansible_facts['distribution'] == "Amazon"
-      - ansible_facts['distribution_version'] != "(Karoo)"
-    tags:
-      - install
+    - name: yum install Zabbix release in RHEL or CentOS
+      yum: 
+        name: http://repo.zabbix.com/zabbix/4.0/rhel/{{ ansible_facts['distribution_major_version'] }}/x86_64/zabbix-release-4.0-1.el{{ ansible_facts['distribution_major_version'] }}.noarch.rpm
+      when:
+        - ansible_facts['os_family'] == "RedHat"
+        - ansible_facts['distribution'] != "Amazon"
 
-  - name: yum install zabbix release in Amazon Linux 2
-    yum:
-      name: http://repo.zabbix.com/zabbix/4.0/rhel/7/x86_64/zabbix-release-4.0-1.el7.noarch.rpm
-    when:
-      - ansible_facts['distribution'] == "Amazon"
-      - ansible_facts['distribution_version'] == "(Karoo)"
-    tags:
-      - install
+    - name: yum install zabbix release in Amazon Linux
+      yum:
+        name: http://repo.zabbix.com/zabbix/4.0/rhel/6/x86_64/zabbix-release-4.0-1.el6.noarch.rpm
+      when: 
+        - ansible_facts['distribution'] == "Amazon"
+        - ansible_facts['distribution_version'] != "(Karoo)"
+
+    - name: yum install zabbix release in Amazon Linux 2
+      yum:
+        name: http://repo.zabbix.com/zabbix/4.0/rhel/7/x86_64/zabbix-release-4.0-1.el7.noarch.rpm
+      when:
+        - ansible_facts['distribution'] == "Amazon"
+        - ansible_facts['distribution_version'] == "(Karoo)"
     
-  - name: apt install Zabbix agent
-    apt: 
-      name: zabbix-agent
-      state: latest
-    when: ansible_facts['os_family'] == "Debian"
-    tags:
-      - install
+    - name: apt install Zabbix agent
+      apt: 
+        name: zabbix-agent
+        state: latest
+      when: ansible_facts['os_family'] == "Debian"
 
-  - name: yum install Zabbix agent
-    yum: 
-      name: zabbix-agent
-      state: latest
-    when: ansible_facts['os_family'] == "RedHat"
-    tags:
-      - install
+    - name: yum install Zabbix agent
+      yum: 
+        name: zabbix-agent
+        state: latest
+      when: ansible_facts['os_family'] == "RedHat"
+  tags:
+    - install

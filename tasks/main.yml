@@ -16,8 +16,14 @@
 
   - name: Configure
     include_tasks: configure.yaml
-    when: install_zabbix_agent.skipped != true
+    when: not install_zabbix_agent.skipped
     register: configure_zabbix
+
+  - name: Configure
+    include_tasks: configure.yaml
+    when:
+      - install_zabbix_agent is succeeded
+      - configure_zabbix is undefined
     tags:
       - install
 
@@ -26,8 +32,8 @@
     register: upgrade_zabbix
     when:
       - zabbix_agent_installed.stat.exists
-      - configure_zabbix.skipped
-      - install_zabbix_agent.skipped      
+      - configure_zabbix is skipped
+      - install_zabbix_agent is skipped      
 
   - name: Upgrade Zabbix agent and Proxy
     include_tasks: upgrade.yaml
@@ -44,7 +50,19 @@
       owner: zabbix
       group: zabbix
       mode: 0775
-    when: configure_zabbix
+    when: not configure_zabbix.skipped
+    register: create_log
+
+  - name: Create log directory
+    file:
+      path: /var/log/zabbix
+      state: directory
+      owner: zabbix
+      group: zabbix
+      mode: 0775
+    when:
+      - install_zabbix_agent is succeeded
+      - create_log is undefined
     tags:
       - install
 

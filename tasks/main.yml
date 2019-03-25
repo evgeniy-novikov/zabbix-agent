@@ -23,10 +23,17 @@
 
   - name: Upgrade Zabbix agent and Proxy
     include_tasks: upgrade.yaml
+    register: upgrade_zabbix
     when:
       - zabbix_agent_installed.stat.exists
       - configure_zabbix.skipped
-      - install_zabbix_agent.skipped
+      - install_zabbix_agent.skipped      
+
+  - name: Upgrade Zabbix agent and Proxy
+    include_tasks: upgrade.yaml
+    when:
+      - zabbix_agent_installed.stat.exists
+      - upgrade_zabbix is undefined
     tags:
       - upgrade
 

@@ -3,6 +3,8 @@
     apt: 
       deb: http://repo.zabbix.com/zabbix/4.0/{{ ansible_facts['distribution']|lower}}/pool/main/z/zabbix-release/zabbix-release_4.0-2+{{ ansible_facts['distribution_release'] }}_all.deb
     when: ansible_facts['os_family'] == "Debian"
+    tags:
+      - install
 
   - name: Add zabbix repo
     apt_repository:
@@ -13,12 +15,16 @@
       - deb
       - deb-src
     when: ansible_facts['os_family'] == "Debian"
+    tags:
+      - install
 
   - name: apt-get update
     apt: 
       update_cache: yes
     when: 
       - ansible_facts['os_family'] == "Debian"
+    tags:
+      - install
 
   - name: yum install Zabbix release in RHEL or CentOS
     yum: 
@@ -26,6 +32,8 @@
     when:
       - ansible_facts['os_family'] == "RedHat"
       - ansible_facts['distribution'] != "Amazon"
+    tags:
+      - install
 
   - name: yum install zabbix release in Amazon Linux
     yum:
@@ -33,6 +41,8 @@
     when: 
       - ansible_facts['distribution'] == "Amazon"
       - ansible_facts['distribution_major_version']|int == 1
+    tags:
+      - install
 
   - name: yum install zabbix release in Amazon Linux 2
     yum:
@@ -40,15 +50,21 @@
     when:
       - ansible_distribution == "Amazon"
       - ansible_facts['distribution_major_version']|int == 2
+    tags:
+      - install
     
   - name: apt install Zabbix agent
     apt: 
       name: zabbix-agent
       state: latest
     when: ansible_os_family == "Debian"
+    tags:
+      - install
 
   - name: yum install Zabbix agent
     yum: 
       name: zabbix-agent
       state: latest
     when: ansible_os_family == "RedHat"
+    tags:
+      - install

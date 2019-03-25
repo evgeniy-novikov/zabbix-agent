@@ -1,6 +1,8 @@
 ---
   - name: Configure zabbix-agent
-    include_vars: ./defaults/main.yml
+    include_vars: zabbix_vars.yml
+    tags:
+      - install
 
   - lineinfile: dest=/etc/zabbix/zabbix_agentd.conf regexp="{{ item.var }}=" line="{{ item.var }}={{ item.value }}"
     with_items:
@@ -11,12 +13,18 @@
       - { var: "RefreshActiveChecks", value: "60"}
       - { var: "EnableRemoteCommands", value: "1"}
     notify: restart zabbix-agent
+    tags:
+      - install
      
   - lineinfile: dest=/etc/zabbix/zabbix_agentd.conf regexp="{{ item }}=" state=absent
     with_items:
       - "Include="
     notify: restart zabbix-agent
+    tags:
+      - install
     
   - name: Create config directory
     file: path=/etc/zabbix/zabbix_agent.d/ state=directory owner=zabbix group=zabbix mode=0775
+    tags:
+      - install
 

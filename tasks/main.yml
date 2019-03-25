@@ -3,43 +3,64 @@
     stat: 
       path: /usr/sbin/zabbix_agentd
     register: zabbix_agent_installed
+    tags:
+      - install
+      - upgrade
+      - start-agent
 
   - name: Install Zabbix agent
     include_tasks: install.yaml
     when: zabbix_agent_installed.stat.exists == false
     register: install_zabbix_agent
+    tags:
+      - install
 
   - name: Configure
     include_tasks: configure.yaml
     when: install_zabbix_agent.skipped != true
     register: configure_zabbix
+    tags:
+      - install
 
-  - name: Update Zabbix agent and Proxy
-    include_tasks: update.yaml
+  - name: Upgrade Zabbix agent and Proxy
+    include_tasks: upgrade.yaml
     when:
       - zabbix_agent_installed.stat.exists
       - configure_zabbix.skipped
       - install_zabbix_agent.skipped
+    tags:
+      - upgrade
 
   - name: Create log directory
     file: path=/var/log/zabbix state=directory owner=zabbix group=zabbix mode=0775
     when: configure_zabbix.skipped != true
+    tags:
+      - install
 
   - name: Start Zabbix agent service
     service: 
       name: zabbix-agent
       state: started
       enabled: yes
+    tags:
+      - install
+      - upgrade
+      - start-agent
 
   - name: Check Zabbix Proxy
     stat: 
       path: /usr/sbin/zabbix_proxy
-    register: zabbix_proxy_installed    
+    register: zabbix_proxy_installed
+    tags:
+      - upgrade
+      - start-proxy    
 
   - name: Start Zabbix proxy
     service: 
       name: zabbix-proxy
       state: started
       enabled: yes
-    register: zabbix_proxy_service
     when: zabbix_proxy_installed.stat.exists
+    tags:
+      - upgrade
+      - start-proxy

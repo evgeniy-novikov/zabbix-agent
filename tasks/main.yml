@@ -93,3 +93,25 @@
     tags:
       - upgrade
       - start-proxy
+
+  - name: Check zabbix_agentd Version
+    shell: zabbix_agentd -V | grep 'zabbix'
+    register: zabbix_version
+    tags:
+      - version
+
+  - debug:
+       msg: "{{ zabbix_version.stdout_lines }}"
+    tags:
+      - version
+
+  - name: Check zabbix_proxy Version
+    shell: zabbix_proxy -V | grep 'zabbix'
+    register: zabbixp_version
+    tags:
+      - version
+
+  - debug:
+       msg: "{{ zabbixp_version.stdout_lines }}"
+    tags:
+      - version

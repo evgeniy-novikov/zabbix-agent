@@ -59,6 +59,9 @@ ansible-playbook zabbix-agent.yml -t install
 For only upgrade Zabbix Agents and Zabbix Proxy run:
 ansible-playbook zabbix-agent.yml -t upgrade
 
+For check zabbix agents and proxy version run:
+ansible-playbook zabbix-agent.yml -t version
+
 For only start Zabbix Proxy run:
 ansible-playbook zabbix-agent.yml -t start-proxy
 
